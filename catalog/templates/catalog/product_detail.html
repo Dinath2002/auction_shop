@@ -1,0 +1,9 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>{{ object.title }}</h2>
+<p>{{ object.description }}</p>
+<p><strong>Rs. {{ object.price }}</strong></p>
+<form method="post" action="/cart/add/{{ object.id }}/">{% csrf_token %}
+  <button type="submit">Add to cart</button>
+</form>
+{% endblock %}

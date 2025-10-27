@@ -1,0 +1,9 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Auctions</h2>
+<ul>
+  {% for l in object_list %}
+    <li><a href="{% url 'auctions:listing_detail' l.pk %}">{{ l.product.title }}</a> — current: Rs. {{ l.current_bid }}</li>
+  {% empty %}<li>No auctions.</li>{% endfor %}
+</ul>
+{% endblock %}

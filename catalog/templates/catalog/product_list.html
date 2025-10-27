@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Products</h2>
+<div class="grid">
+  {% for p in object_list %}
+    <div class="card">
+      <a href="{{ p.get_absolute_url }}"><h3>{{ p.title }}</h3></a>
+      <p>Rs. {{ p.price }}</p>
+    </div>
+  {% empty %}
+    <p>No products yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}

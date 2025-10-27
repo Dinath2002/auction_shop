@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>{{ object.product.title }}</h2>
+<p>Current bid: Rs. {{ object.current_bid }}</p>
+<p>Ends at: {{ object.ends_at }}</p>
+{% if object.buy_now_price %}
+<p>Buy Now: Rs. {{ object.buy_now_price }}</p>
+<form method="post" action="{% url 'auctions:buy_now' object.pk %}">{% csrf_token %}
+  <button type="submit">Buy Now</button>
+</form>
+{% endif %}
+
+{% if not object.is_closed %}
+<h3>Place a bid</h3>
+<form method="post" action="{% url 'auctions:place_bid' object.pk %}">{% csrf_token %}
+  <input type="number" step="0.01" name="amount" required />
+  <button type="submit">Bid</button>
+</form>
+{% else %}
+<p><strong>Auction closed.</strong></p>
+{% endif %}
+
+<h3>Recent bids</h3>
+<ul>
+  {% for b in object.bids.all %}
+    <li>{{ b.bidder.username }}: Rs. {{ b.amount }} ({{ b.placed_at }})</li>
+  {% empty %}<li>No bids yet.</li>{% endfor %}
+</ul>
+{% endblock %}

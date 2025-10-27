@@ -1,0 +1,6 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<h2>Order placed!</h2>
+<p>Order #{{ order.id }} — Total: Rs. {{ order.total|floatformat:2 }}</p>
+<a href="/">Back to home</a>
+{% endblock %}
