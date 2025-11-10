@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Home | Shop & Auctions{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <div class="card">
+        <h3>Trending Auctions</h3>
+        <p>Bid live on high-demand products with secure, real-time updates.</p>
+        <a href="/auctions/" class="btn btn-outline">View Auctions</a>
+    </div>
+    <div class="card">
+        <h3>Featured Products</h3>
+        <p>Curated items from trusted sellers in electronics, fashion, and more.</p>
+        <a href="/catalog/" class="btn">Explore Catalog</a>
+    </div>
+    <div class="card">
+        <h3>Secure Checkout</h3>
+        <p>Encrypted orders, verified users, and clear order tracking.</p>
+        <a href="/cart/" class="btn btn-outline">View Cart</a>
+    </div>
+</div>
+{% endblock %}
