@@ -1,9 +1,44 @@
 {% extends 'core/base.html' %}
+
+{% block title %}Live Auctions | AuctionShop{% endblock %}
+
 {% block content %}
-<h2>Auctions</h2>
-<ul>
-  {% for l in object_list %}
-    <li><a href="{% url 'auctions:listing_detail' l.pk %}">{{ l.product.title }}</a> — current: Rs. {{ l.current_bid }}</li>
-  {% empty %}<li>No auctions.</li>{% endfor %}
-</ul>
+<h2>🔥 Live Auctions</h2>
+<p class="muted">Bid on active listings before the timer ends. Highest bid wins.</p>
+
+<div class="grid">
+    {% for listing in object_list %}
+        <div class="card">
+            {% if listing.product.image %}
+                <img src="{{ listing.product.image.url }}" alt="{{ listing.product.title }}"
+                     style="width:100%; border-radius:8px; margin-bottom:0.8rem;">
+            {% endif %}
+
+            <h3>{{ listing.product.title }}</h3>
+
+            <p class="muted">
+                Seller: {{ listing.seller.username }}
+            </p>
+
+            <p class="price">
+                Starting: Rs {{ listing.starting_price }}
+            </p>
+
+            <p>
+                Current bid:
+                Rs {{ listing.current_price|default:listing.starting_price }}
+            </p>
+
+            <p>
+                Ends at: {{ listing.ends_at }}
+            </p>
+
+            <a href="{% url 'auctions:listing_detail' listing.slug %}" class="btn">
+                Place a Bid
+            </a>
+        </div>
+    {% empty %}
+        <p>No live auctions at the moment. Check back soon.</p>
+    {% endfor %}
+</div>
 {% endblock %}
