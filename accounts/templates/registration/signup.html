@@ -1,8 +1,49 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
+{% block title %}Create account | AuctionShop{% endblock %}
+
 {% block content %}
-<h2>Create account</h2>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Sign up</button>
-</form>
+<div class="auth-wrapper">
+    <div class="auth-card auth-wide">
+        <h1 class="auth-title">Create account</h1>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                    <small class="help-text">
+                        Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">Password</label>
+                    {{ form.password1 }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password2">Confirm password</label>
+                    {{ form.password2 }}
+                    <small class="help-text">
+                        Enter the same password again for verification.
+                    </small>
+                </div>
+            </div>
+
+            {% if form.errors %}
+                <div class="form-errors">
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-full">Sign up</button>
+        </form>
+
+        <div class="auth-links">
+            <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+        </div>
+    </div>
+</div>
 {% endblock %}
