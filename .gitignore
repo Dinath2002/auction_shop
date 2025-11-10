@@ -15,4 +15,5 @@ db.sqlite3
 .vscode/
 
 # Environment
-.env
+.env__pycache__/
+*.pyc
