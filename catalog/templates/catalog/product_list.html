@@ -1,14 +1,25 @@
 {% extends 'core/base.html' %}
+
+{% block title %}Catalog | AuctionShop{% endblock %}
+
 {% block content %}
-<h2>Products</h2>
+<h2>🛍️ Product Catalog</h2>
+<p class="muted">Browse all available products ready for instant purchase.</p>
+
 <div class="grid">
-  {% for p in object_list %}
-    <div class="card">
-      <a href="{{ p.get_absolute_url }}"><h3>{{ p.title }}</h3></a>
-      <p>Rs. {{ p.price }}</p>
-    </div>
-  {% empty %}
-    <p>No products yet.</p>
-  {% endfor %}
+    {% for product in object_list %}
+        <div class="card">
+            <img src="{{ product.image.url }}" alt="{{ product.title }}" style="width:100%; border-radius:8px; margin-bottom:0.8rem;">
+            <h3>{{ product.title }}</h3>
+            <p class="muted">Category: {{ product.category }}</p>
+            <p class="price">💰 Rs {{ product.price }}</p>
+            <p>{{ product.description|truncatewords:18 }}</p>
+            <a href="{% url 'catalog:product_detail' product.slug %}" class="btn btn-outline">
+                View Details
+            </a>
+        </div>
+    {% empty %}
+        <p>No products available yet. Check back later!</p>
+    {% endfor %}
 </div>
 {% endblock %}
