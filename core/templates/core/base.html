@@ -1,32 +1,46 @@
-<!doctype html>
+{% load static %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Shop & Auctions</title>
-  <link rel="stylesheet" href="/static/css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Shop & Auctions{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-  <nav class="nav">
-    <a href="/">Home</a>
-    <a href="/catalog/">Catalog</a>
-    <a href="/auctions/">Auctions</a>
-    <a href="/cart/">Cart</a>
-    <span class="spacer"></span>
-    {% if user.is_authenticated %}
-      <span>Hello, {{ user.username }}</span>
-      <a href="/accounts/logout/">Logout</a>
-    {% else %}
-      <a href="/accounts/login/">Login</a>
-      <a href="/accounts/signup/">Sign up</a>
-    {% endif %}
-  </nav>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="/">🛒 <span>AuctionShop</span></a>
+        </div>
+        <div class="links">
+            <a href="/catalog/">Catalog</a>
+            <a href="/auctions/">Auctions</a>
+            <a href="/cart/">Cart</a>
+            {% if user.is_authenticated %}
+                <a href="/accounts/logout/" class="btn btn-logout">Logout</a>
+            {% else %}
+                <a href="/accounts/login/" class="btn btn-login">Login</a>
+            {% endif %}
+        </div>
+    </nav>
 
-  <main class="container">
-    {% block content %}
-    <h1>Welcome</h1>
-    <p>Browse products or join an auction.</p>
-    {% endblock %}
-  </main>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover, Bid, and Shop Smarter 💫</h1>
+            <p>Experience the next-generation online auction and e-commerce platform — secure, fast, and fun.</p>
+            <div class="hero-buttons">
+                <a href="/catalog/" class="btn">Browse Products</a>
+                <a href="/auctions/" class="btn btn-outline">Join Auctions</a>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© 2025 Auction Shop — Built with ❤️ using Django | Dark Theme Mode 🌙</p>
+    </footer>
 </body>
 </html>
