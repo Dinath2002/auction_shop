@@ -11,4 +11,5 @@ urlpatterns = [
     path('auctions/', include('auctions.urls')),
     path('cart/', include('cart.urls')),
     path('orders/', include('orders.urls')),
+    path('', include('core.urls')),  # or wherever your home page is
 ]
