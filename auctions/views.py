@@ -6,13 +6,27 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Listing, Bid
 
+
 class ListingListView(ListView):
     model = Listing
     template_name = 'auctions/listing_list.html'
+    paginate_by = 12
+    # Use a real field from your Listing model:
+    # if you have starts_at/ends_at -> use that, otherwise fall back to -id
+    ordering = ['-starts_at']  # or ['-id']
+
 
 class ListingDetailView(DetailView):
     model = Listing
     template_name = 'auctions/listing_detail.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Show recent bids for this listing
+        context['bids'] = Bid.objects.filter(listing=self.object).order_by('-created_at')
+        return context
 
 @login_required
 def place_bid(request, pk):
