@@ -29,11 +29,14 @@ body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow: hidden; /* ✅ hides scrollbar */
 }
 
 body {
   display: flex;
   flex-direction: column;
+  justify-content: center; /* ✅ vertically center everything */
+  align-items: center;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
   background-color: var(--bg);
   color: var(--text);
@@ -349,8 +352,9 @@ form button[type="submit"] {
 }
 
 .auth-card.auth-wide {
-  width: 100%;
-  max-width: 720px;
+  width: 380px;
+  max-width: 380px;
+  margin: 0 auto; /* ✅ ensure center horizontally */
 }
 
 .auth-title {
@@ -439,4 +443,47 @@ footer {
     opacity: 1;
     transform: translateY(0);
   }
+}
+/* Center the auth form vertically (no scroll, same height for login & signup) */
+.auth-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* ✅ fills full viewport height */
+  padding: 0;
+}
+.logout-form {
+  display: inline-block;
+  margin: 0;
+}
+.logout-form button {
+  padding: 0.45rem 0.9rem;
+  border: none;
+  background: transparent;
+  color: var(--accent-hover);
+  cursor: pointer;
+}
+.logout-form button:hover {
+  background: var(--accent-soft);
+  color: #fff;
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+.auth-wrapper {
+  min-height: 100vh;              /* full viewport height */
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;            /* vertically center the card */
+  padding: 0 1rem;                /* small side padding for mobile */
+  background-color: var(--bg);    /* optional background color */
+  overflow: hidden;               /* prevent scrollbars */
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 380px;               /* fixed card width */
+  background-color: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;
 }
