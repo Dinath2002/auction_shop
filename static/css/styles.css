@@ -9,6 +9,8 @@
   --accent: #2ea043;
   --accent-soft: #238636;
   --accent-hover: #3fb950;
+    --panel: #161b22;
+  --shadow: 0 8px 24px rgba(0,0,0,0.4);
   --accent-glow: rgba(63, 185, 80, 0.6);
   --border: #30363d;
   --radius: 12px;
