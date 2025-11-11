@@ -8,7 +8,6 @@
 
         <form method="post" novalidate>
             {% csrf_token %}
-
             <div class="form-group">
                 <label for="id_username">Username</label>
                 {{ form.username }}
@@ -30,7 +29,7 @@
 
         <div class="auth-links">
             <a href="{% url 'password_reset' %}">Forgot password?</a>
-            <p>No account? <a href="{% url 'signup' %}">Sign up</a></p>
+            <p>No account? <a href="{% url 'accounts:signup' %}">Sign up</a></p>
         </div>
     </div>
 </div>
