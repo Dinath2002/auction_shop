@@ -9,14 +9,16 @@
   --accent: #2ea043;
   --accent-soft: #238636;
   --accent-hover: #3fb950;
-    --panel: #161b22;
-  --shadow: 0 8px 24px rgba(0,0,0,0.4);
+  --panel: #161b22;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   --accent-glow: rgba(63, 185, 80, 0.6);
   --border: #30363d;
   --radius: 12px;
   --transition-fast: 0.18s ease;
-  --shadow-soft: 0 8px 24px rgba(0,0,0,0.4);
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
+
+/* ========== GLOBAL RESET ========== */
 
 *,
 *::before,
@@ -24,27 +26,28 @@
   box-sizing: border-box;
 }
 
-/* ========== LAYOUT (sticky footer, scroll-safe) ========== */
-
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* ✅ hides scrollbar */
 }
 
 body {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* ✅ vertically center everything */
-  align-items: center;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+  align-items: stretch;        /* ✅ full-width children */
+  justify-content: flex-start;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+    sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  overflow-x: hidden;         /* no horizontal scroll */
+  overflow-y: auto;
 }
 
-/* main grows to fill between navbar and footer */
+/* main grows between navbar and footer */
 main {
   flex: 1;
   max-width: 1120px;
@@ -70,19 +73,22 @@ main .form-card {
   margin: 1.5rem auto 0;
 }
 
-/* ========== NAVBAR ========== */
+/* ========== NAVBAR (FULL WIDTH) ========== */
 
 .navbar {
   position: sticky;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 50;
+  width: 100%; /* 🔹 full width bar */
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 2.5rem;
   background: radial-gradient(circle at top left, #111827, #020817);
   border-bottom: 1px solid var(--border);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.65);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65);
 }
 
 .navbar .logo a {
@@ -126,13 +132,33 @@ main .form-card {
   color: var(--accent-hover);
   font-size: 0.85rem;
   font-weight: 500;
-  box-shadow: 0 0 6px rgba(46,160,67,0.35);
+  box-shadow: 0 0 6px rgba(46, 160, 67, 0.35);
   text-decoration: none;
   transition: all var(--transition-fast);
 }
 
 .btn-login:hover,
 .btn-logout:hover {
+  background: var(--accent-soft);
+  color: #fff;
+  box-shadow: 0 0 14px var(--accent-glow);
+}
+
+/* logout button inside form (if you use POST logout) */
+.logout-form {
+  display: inline-block;
+  margin: 0;
+}
+
+.logout-form button {
+  padding: 0.45rem 0.9rem;
+  border: none;
+  background: transparent;
+  color: var(--accent-hover);
+  cursor: pointer;
+}
+
+.logout-form button:hover {
   background: var(--accent-soft);
   color: #fff;
   box-shadow: 0 0 14px var(--accent-glow);
@@ -145,8 +171,8 @@ main .form-card {
   display: flex;
   justify-content: center;
   background:
-    radial-gradient(circle at top left, rgba(46,160,67,0.06), transparent),
-    radial-gradient(circle at top right, rgba(88,166,255,0.05), transparent),
+    radial-gradient(circle at top left, rgba(46, 160, 67, 0.06), transparent),
+    radial-gradient(circle at top right, rgba(88, 166, 255, 0.05), transparent),
     var(--bg);
   border-bottom: 1px solid var(--border);
 }
@@ -192,7 +218,7 @@ main .form-card {
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  box-shadow: 0 0 10px rgba(46,160,67,0.55);
+  box-shadow: 0 0 10px rgba(46, 160, 67, 0.55);
   transition: all var(--transition-fast);
 }
 
@@ -210,7 +236,7 @@ main .form-card {
 }
 
 .btn-outline:hover {
-  background: rgba(46,160,67,0.12);
+  background: rgba(46, 160, 67, 0.12);
   box-shadow: 0 0 14px var(--accent-glow);
 }
 
@@ -280,7 +306,7 @@ main .form-card {
 
 .card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgba(0,0,0,0.6);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6);
   border-color: var(--accent-soft);
 }
 
@@ -310,8 +336,7 @@ textarea {
   background-color: var(--bg-soft);
   color: var(--text);
   font-size: 0.9rem;
-  transition:
-    border-color var(--transition-fast),
+  transition: border-color var(--transition-fast),
     box-shadow var(--transition-fast),
     background-color var(--transition-fast);
 }
@@ -339,10 +364,13 @@ form button[type="submit"] {
   padding: 2.5rem 2rem 0;
   display: flex;
   justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 140px); /* navbar + footer space */
 }
 
 .auth-card {
-  width: 380px;
+  width: 100%;
+  max-width: 380px;
   background: var(--bg-elevated);
   border-radius: var(--radius);
   border: 1px solid var(--border);
@@ -351,12 +379,6 @@ form button[type="submit"] {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.auth-card.auth-wide {
-  width: 380px;
-  max-width: 380px;
-  margin: 0 auto; /* ✅ ensure center horizontally */
 }
 
 .auth-title {
@@ -420,17 +442,66 @@ form button[type="submit"] {
   gap: 0.7rem;
 }
 
-/* ========== FOOTER ========== */
+/* ========== FEATURE CARDS STRIP (HOME) ========== */
+
+.features {
+  max-width: 1100px;
+  margin: 22px auto 0;
+  padding: 0 16px 28px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.feature-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  transition: transform 0.16s ease, box-shadow 0.16s ease,
+    border-color 0.16s ease;
+  min-height: 120px;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
+  border-color: rgba(63, 185, 80, 0.35);
+}
+
+.feature-card h4 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: #e7ecef;
+}
+
+.feature-card p {
+  margin: 0 0 10px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.feature-card .btn {
+  padding: 0.45rem 0.9rem;
+  font-weight: 600;
+}
+
+/* ========== FOOTER (FULL WIDTH) ========== */
 
 footer {
   margin-top: auto;
+  width: 100%;              /* 🔹 full width bar */
   padding: 1rem 2.5rem 1.4rem;
   text-align: center;
   color: var(--muted);
   font-size: 0.82rem;
   border-top: 1px solid var(--border);
   background: #020817;
-  box-shadow: 0 -4px 14px rgba(0,0,0,0.6);
+  box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.6);
   animation: fadeInUp 0.4s ease-out;
 }
 
@@ -446,46 +517,27 @@ footer {
     transform: translateY(0);
   }
 }
-/* Center the auth form vertically (no scroll, same height for login & signup) */
-.auth-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* ✅ fills full viewport height */
-  padding: 0;
-}
-.logout-form {
-  display: inline-block;
-  margin: 0;
-}
-.logout-form button {
-  padding: 0.45rem 0.9rem;
-  border: none;
-  background: transparent;
-  color: var(--accent-hover);
-  cursor: pointer;
-}
-.logout-form button:hover {
-  background: var(--accent-soft);
-  color: #fff;
-  box-shadow: 0 0 14px var(--accent-glow);
-}
-.auth-wrapper {
-  min-height: 100vh;              /* full viewport height */
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;            /* vertically center the card */
-  padding: 0 1rem;                /* small side padding for mobile */
-  background-color: var(--bg);    /* optional background color */
-  overflow: hidden;               /* prevent scrollbars */
-}
 
-.auth-card {
-  width: 100%;
-  max-width: 380px;               /* fixed card width */
-  background-color: var(--panel);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 2rem;
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 900px) {
+  main {
+    padding: 1.25rem 1.25rem 2rem;
+  }
+
+  .hero {
+    padding: 28px 1.25rem 10px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 0.65rem 1.25rem;
+  }
+
+  footer {
+    padding: 0.8rem 1.25rem 1.1rem;
+  }
 }
