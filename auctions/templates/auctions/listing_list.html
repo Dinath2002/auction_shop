@@ -1,44 +1,43 @@
-{% extends 'core/base.html' %}
-
+{% extends "core/base.html" %}
 {% block title %}Live Auctions | AuctionShop{% endblock %}
 
 {% block content %}
-<h2>🔥 Live Auctions</h2>
-<p class="muted">Bid on active listings before the timer ends. Highest bid wins.</p>
+<div class="page-header">
+  <h1>Live Listings</h1>
+  <p class="text-muted">
+    Browse items for <strong>auction</strong> and <strong>buy-now</strong>.
+  </p>
+</div>
 
 <div class="grid">
-    {% for listing in object_list %}
-        <div class="card">
-            {% if listing.product.image %}
-                <img src="{{ listing.product.image.url }}" alt="{{ listing.product.title }}"
-                     style="width:100%; border-radius:8px; margin-bottom:0.8rem;">
-            {% endif %}
+  {% for product in products %}
+    <div class="card">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.title }}">
+      {% endif %}
 
-            <h3>{{ listing.product.title }}</h3>
+      <h3>{{ product.title }}</h3>
+      <p>{{ product.description|truncatechars:90 }}</p>
 
-            <p class="muted">
-                Seller: {{ listing.seller.username }}
-            </p>
-
-            <p class="price">
-                Starting: Rs {{ listing.starting_price }}
-            </p>
-
-            <p>
-                Current bid:
-                Rs {{ listing.current_price|default:listing.starting_price }}
-            </p>
-
-            <p>
-                Ends at: {{ listing.ends_at }}
-            </p>
-
-            <a href="{% url 'auctions:listing_detail' listing.slug %}" class="btn">
-                Place a Bid
-            </a>
-        </div>
-    {% empty %}
-        <p>No live auctions at the moment. Check back soon.</p>
-    {% endfor %}
+      {% if product.is_auction %}
+        <p class="price">
+          Current bid: Rs. {{ product.highest_bid|default:product.starting_bid }}
+        </p>
+        <p class="text-muted small">
+          Ends: {{ product.auction_end|date:"Y-m-d H:i" }}
+        </p>
+        <a href="{% url 'auctions:auction_detail' product.pk %}" class="btn">
+          View &amp; Bid
+        </a>
+      {% else %}
+        <p class="price">Price: Rs. {{ product.price }}</p>
+        <a href="{% url 'auctions:auction_detail' product.pk %}" class="btn">
+          View details
+        </a>
+      {% endif %}
+    </div>
+  {% empty %}
+    <p>No listings yet. Check back soon.</p>
+  {% endfor %}
 </div>
 {% endblock %}

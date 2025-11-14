@@ -1,67 +1,141 @@
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import ListView, DetailView
+# auctions/views.py
+
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from .models import Listing, Bid
+
+from .models import Product, Bid
+from .forms import ProductForm
 
 
-class ListingListView(ListView):
-    model = Listing
-    template_name = 'auctions/listing_list.html'
-    paginate_by = 12
-    # Use a real field from your Listing model:
-    # if you have starts_at/ends_at -> use that, otherwise fall back to -id
-    ordering = ['-starts_at']  # or ['-id']
+def auction_list(request):
+    """
+    Show all active products (both Buy Now and Auctions).
+    """
+    products = Product.objects.filter(is_active=True).order_by("-created_at")
+    return render(request, "auctions/listing_list.html", {"products": products})
 
 
-class ListingDetailView(DetailView):
-    model = Listing
-    template_name = 'auctions/listing_detail.html'
-    slug_field = 'slug'
-    slug_url_kwarg = 'slug'
+def auction_detail(request, pk):
+    """
+    Detail page for a single product (auction or buy-now).
+    """
+    product = get_object_or_404(Product, pk=pk)
+    bids = product.bids.order_by("-amount", "-created_at") if product.is_auction else []
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # Show recent bids for this listing
-        context['bids'] = Bid.objects.filter(listing=self.object).order_by('-created_at')
-        return context
+    context = {
+        "product": product,
+        "object": product,   # so your old template using {{ object }} still works
+        "bids": bids,
+    }
+    return render(request, "auctions/listing_detail.html", context)
+
 
 @login_required
 def place_bid(request, pk):
-    listing = get_object_or_404(Listing, pk=pk, is_closed=False)
-    if listing.ends_at <= timezone.now():
-        listing.is_closed = True
-        listing.save(update_fields=['is_closed'])
-        messages.error(request, 'Auction ended')
-        return redirect('auctions:listing_detail', pk=pk)
+    """
+    Place a bid on an active auction.
+    """
+    product = get_object_or_404(
+        Product,
+        pk=pk,
+        listing_type="BID",
+        is_active=True,
+    )
 
-    amount = request.POST.get('amount')
-    try:
-        amount = float(amount)
-    except (TypeError, ValueError):
-        messages.error(request, 'Invalid bid')
-        return redirect('auctions:listing_detail', pk=pk)
+    if request.method == "POST":
+        # read amount safely
+        try:
+            amount = Decimal(request.POST.get("amount", "0"))
+        except Exception:
+            messages.error(request, "Invalid bid amount.")
+            return redirect("auctions:listing_detail", pk=product.pk)
 
-    current = float(listing.current_bid())
-    if amount <= current:
-        messages.error(request, f'Your bid must be higher than current bid (Rs. {current})')
-        return redirect('auctions:listing_detail', pk=pk)
+        # minimum allowed = highest bid + min_increment (or starting_bid)
+        min_allowed = product.starting_bid or Decimal("0")
+        top = product.highest_bid
+        if top is not None:
+            min_allowed = top + (product.min_increment or Decimal("1.00"))
 
-    Bid.objects.create(listing=listing, bidder=request.user, amount=amount)
-    messages.success(request, 'Bid placed!')
-    return redirect('auctions:listing_detail', pk=pk)
+        # validate
+        if product.auction_end and timezone.now() >= product.auction_end:
+            messages.error(request, "This auction has ended.")
+        elif amount < min_allowed:
+            messages.error(
+                request,
+                f"Your bid must be at least {min_allowed}.",
+            )
+        else:
+            Bid.objects.create(
+                product=product,
+                bidder=request.user,
+                amount=amount,
+            )
+            messages.success(request, "Bid placed successfully!")
+
+    return redirect("auctions:listing_detail", pk=product.pk)
+
 
 @login_required
 def buy_now(request, pk):
-    listing = get_object_or_404(Listing, pk=pk, is_closed=False)
-    if listing.buy_now_price:
-        listing.is_closed = True
-        listing.save(update_fields=['is_closed'])
-        messages.success(request, 'Purchased via Buy Now!')
-    else:
-        messages.error(request, 'Buy Now not available')
-    return redirect('auctions:listing_detail', pk=pk)
+    """
+    Simple 'buy now' flow for fixed-price products.
+    For now, just mark the product as inactive and show a message.
+    """
+    product = get_object_or_404(
+        Product,
+        pk=pk,
+        listing_type="BUY",
+        is_active=True,
+    )
 
-# Create your views here.
+    # here you’d normally create an order / payment etc.
+    product.is_active = False
+    product.save()
+
+    messages.success(request, "You purchased this item (demo flow).")
+    return redirect("auctions:listing_detail", pk=product.pk)
+
+
+@login_required
+def product_create(request):
+    """
+    Let a logged-in user create a product (sell item).
+    """
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.seller = request.user
+
+            # clean up fields depending on type
+            if product.listing_type == "BUY":
+                product.starting_bid = None
+                product.min_increment = None
+                product.auction_end = None
+
+            product.save()
+            messages.success(request, "Product created successfully.")
+            return redirect("auctions:listing_detail", pk=product.pk)
+    else:
+        form = ProductForm()
+
+    return render(request, "auctions/product_form.html", {"form": form})
+
+
+def product_status_json(request, pk):
+    """
+    Small JSON API for real-time status: current bid, time left, active flag.
+    """
+    product = get_object_or_404(Product, pk=pk)
+    data = {
+        "is_active": product.is_active,
+        "is_auction": product.is_auction,
+        "highest_bid": str(product.highest_bid) if product.highest_bid is not None else None,
+        "time_left": product.time_left_seconds,
+    }
+    return JsonResponse(data)

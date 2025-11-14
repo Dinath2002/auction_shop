@@ -1,29 +1,70 @@
-{% extends 'core/base.html' %}
+{% extends "core/base.html" %}
+{% block title %}{{ product.title }} | AuctionShop{% endblock %}
+
 {% block content %}
-<h2>{{ object.product.title }}</h2>
-<p>Current bid: Rs. {{ object.current_bid }}</p>
-<p>Ends at: {{ object.ends_at }}</p>
-{% if object.buy_now_price %}
-<p>Buy Now: Rs. {{ object.buy_now_price }}</p>
-<form method="post" action="{% url 'auctions:buy_now' object.pk %}">{% csrf_token %}
-  <button type="submit">Buy Now</button>
-</form>
-{% endif %}
+<div class="product-detail">
+  <div class="product-main">
+    {% if product.image %}
+      <img src="{{ product.image.url }}" alt="{{ product.title }}" class="product-image">
+    {% endif %}
 
-{% if not object.is_closed %}
-<h3>Place a bid</h3>
-<form method="post" action="{% url 'auctions:place_bid' object.pk %}">{% csrf_token %}
-  <input type="number" step="0.01" name="amount" required />
-  <button type="submit">Bid</button>
-</form>
-{% else %}
-<p><strong>Auction closed.</strong></p>
-{% endif %}
+    <h1>{{ product.title }}</h1>
+    <p class="text-muted">Seller: {{ product.seller.username }}</p>
+    <p>{{ product.description }}</p>
 
-<h3>Recent bids</h3>
-<ul>
-  {% for b in object.bids.all %}
-    <li>{{ b.bidder.username }}: Rs. {{ b.amount }} ({{ b.placed_at }})</li>
-  {% empty %}<li>No bids yet.</li>{% endfor %}
-</ul>
+    {% if product.is_auction %}
+      <h3>Current auction</h3>
+      <p class="price">
+        Current bid: Rs. {{ product.highest_bid|default:product.starting_bid }}
+      </p>
+      <p class="text-muted small">
+        Ends: {{ product.auction_end|date:"Y-m-d H:i" }}
+      </p>
+
+      {% if product.time_left_seconds > 0 %}
+        <form method="post" action="{% url 'auctions:place_bid' product.pk %}">
+          {% csrf_token %}
+          <label for="id_amount">Your bid</label>
+          <input
+            id="id_amount"
+            name="amount"
+            type="number"
+            step="0.01"
+            required
+          >
+          <button type="submit" class="btn btn-full">Place bid</button>
+        </form>
+      {% else %}
+        <p><strong>Auction ended.</strong></p>
+      {% endif %}
+
+      <h3>Recent bids</h3>
+      <ul>
+        {% for b in bids %}
+          <li>
+            {{ b.bidder.username }}: Rs. {{ b.amount }}
+            <span class="text-muted small">
+              ({{ b.created_at|date:"Y-m-d H:i" }})
+            </span>
+          </li>
+        {% empty %}
+          <li>No bids yet.</li>
+        {% endfor %}
+      </ul>
+
+    {% else %}
+      <h3>Buy now</h3>
+      <p class="price">Price: Rs. {{ product.price }}</p>
+
+      {% if product.is_active %}
+        <form method="post" action="{% url 'auctions:buy_now' product.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-full">Buy now</button>
+        </form>
+      {% else %}
+        <p><strong>This item has been sold.</strong></p>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
 {% endblock %}
